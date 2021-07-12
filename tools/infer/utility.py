@@ -105,6 +105,9 @@ def parse_args():
     parser.add_argument("--total_process_num", type=int, default=1)
     parser.add_argument("--process_id", type=int, default=0)
 
+    #20210712 custom
+    parser.add_argument("--rec_pre_save_dir", type=str, default="")
+
     return parser.parse_args()
 
 

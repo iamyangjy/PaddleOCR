@@ -31,6 +31,7 @@ import tools.infer.utility as utility
 from ppocr.postprocess import build_post_process
 from ppocr.utils.logging import get_logger
 from ppocr.utils.utility import get_image_file_list, check_and_read_gif
+from PIL import ImageFont, ImageDraw, Image
 
 logger = get_logger()
 
@@ -221,7 +222,7 @@ class TextRecognizer(object):
                 input_names = self.predictor.get_input_names()
                 for i in range(len(input_names)):
                     input_tensor = self.predictor.get_input_handle(input_names[
-                        i])
+                                                                       i])
                     input_tensor.copy_from_cpu(inputs[i])
                 self.predictor.run()
                 outputs = []
@@ -280,12 +281,43 @@ def main(args):
                 exit()
             for ino in range(len(img_list)):
                 logger.info("Predicts of {}:{}".format(valid_image_file_list[
-                    ino], rec_res[ino]))
+                                                           ino], rec_res[ino]))
+                save_pre_img(args, valid_image_file_list[ino], rec_res[ino])
             total_images_num += len(valid_image_file_list)
             valid_image_file_list = []
             img_list = []
     logger.info("Total predict time for {} images, cost: {:.3f}".format(
         total_images_num, total_run_time))
+
+
+def save_pre_img(args, path, pre_text):
+    font = ImageFont.truetype(args.vis_font_path, 25)
+
+    img = cv2.imread(path)
+
+    pre_img = img.copy()
+    pre_img.fill(255)
+    b, g, r, a = 255, 0, 0, 0
+    img_pil = Image.fromarray(pre_img)
+    # 创建画板
+    draw = ImageDraw.Draw(img_pil)
+    # 设置字体的颜色
+    b, g, r, a = 0, 0, 0, 0
+    # 在图片上绘制中文
+    # print(pre_text)
+    draw.text((2, 5), pre_text[0], font=font, fill=(0, 0, 255, 0))
+    # 将图片转为numpy array的数据格式
+    pre_img = np.array(img_pil)
+    # res = cv2.vconcat([img, pretext])
+
+    org_dir, name = path.rsplit(os.sep, 1)
+
+    pre_dir = args.rec_pre_save_dir
+    pre_name_path = os.path.join(pre_dir, name.replace(".jpg", "_pre.jpg"))
+    org_name_path = os.path.join(pre_dir, name)
+
+    cv2.imwrite(org_name_path, img)
+    cv2.imwrite(pre_name_path, pre_img)
 
 
 if __name__ == "__main__":

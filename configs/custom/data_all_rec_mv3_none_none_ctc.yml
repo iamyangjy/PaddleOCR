@@ -64,44 +64,42 @@ Train:
     #    name: LMDBDataSet
     #    data_dir: ./train_data/data_lmdb_release/training/
     name: SimpleDataSet
-    #    data_dir: ./train_data/rec/dataset
     data_dir: ./train_data/rec_all/dataset
     #    label_file_list: [ "./train_data/rec/rec_gt_train.txt" ]
     label_file_list:
       - ./train_data/rec_all/label/digit
-      #      - ./train_data/rec_all/label/hand-line
-      #      - ./train_data/rec_all/label/hand-sign
-      #      - ./train_data/rec_all/label/hand-write
-      - ./train_data/rec_all/label/label_train_ppocr
+      - ./train_data/rec_all/label/hand-line
+      - ./train_data/rec_all/label/hand-sign
+      - ./train_data/rec_all/label/hand-write
+      - ./train_data/rec_all/label/label_train_ppocr.txt
       - ./train_data/rec_all/label/line-01
-    #      - ./train_data/rec_all/label/line-04
-    #      - ./train_data/rec_all/label/line-05
-    #      - ./train_data/rec_all/label/line-06
-    #      - ./train_data/rec_all/label/line-07
-    #      - ./train_data/rec_all/label/line-08
-    #      - ./train_data/rec_all/label/line-09
-    #      - ./train_data/rec_all/label/line-11
-    #      - ./train_data/rec_all/label/line-13
-    #      - ./train_data/rec_all/label/line-14
-    #      - ./train_data/rec_all/label/line-15
-    #      - ./train_data/rec_all/label/line-16
-    #      - ./train_data/rec_all/label/line-17
-    #      - ./train_data/rec_all/label/web-line
-    ratio_list: [ 1.0, 1.0, 1.0 ]
+      - ./train_data/rec_all/label/line-04
+      - ./train_data/rec_all/label/line-05
+      - ./train_data/rec_all/label/line-06
+      - ./train_data/rec_all/label/line-07
+      - ./train_data/rec_all/label/line-08
+      - ./train_data/rec_all/label/line-09
+      - ./train_data/rec_all/label/line-11
+      - ./train_data/rec_all/label/line-13
+      - ./train_data/rec_all/label/line-14
+      - ./train_data/rec_all/label/line-15
+      - ./train_data/rec_all/label/line-16
+      - ./train_data/rec_all/label/line-17
+      - ./train_data/rec_all/label/web-line
     transforms:
       - DecodeImage: # load image
           img_mode: BGR
           channel_first: False
       - CTCLabelEncode: # Class handling label
       - RecResizeImg:
-          image_shape: [ 3, 32, 512 ]
+          image_shape: [ 3, 32, 1024 ]
       - KeepKeys:
           keep_keys: [ 'image', 'label', 'length' ] # dataloader will return list in this order
   loader:
     shuffle: True
     batch_size_per_card: 256
     drop_last: True
-    num_workers: 16
+    num_workers: 8
 
 Eval:
   dataset:
@@ -110,21 +108,21 @@ Eval:
     name: SimpleDataSet
     #    data_dir: ./train_data/rec/dataset
     data_dir: ./train_data/rec_all/dataset
+    #    label_file_list: [ "./train_data/rec/rec_gt_test.txt" ]
     label_file_list:
-      - ./train_data/rec_all/label/label_test_ppocr
+      - ./train_data/rec_all/label/label_test_ppocr.txt
       - ./train_data/rec_all/label/line
-    ratio_list: [ 1.0, 0.5 ]
     transforms:
       - DecodeImage: # load image
           img_mode: BGR
           channel_first: False
       - CTCLabelEncode: # Class handling label
       - RecResizeImg:
-          image_shape: [ 3, 32, 512 ]
+          image_shape: [ 3, 32, 1024 ]
       - KeepKeys:
           keep_keys: [ 'image', 'label', 'length' ] # dataloader will return list in this order
   loader:
     shuffle: False
     drop_last: False
     batch_size_per_card: 256
-    num_workers: 16
+    num_workers: 8

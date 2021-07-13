@@ -83,7 +83,7 @@ class MobileNetV3(nn.Layer):
                                       "_model] is not implemented!")
 
         # supported_scale = [0.35, 0.5, 0.75, 1.0, 1.25]
-        supported_scale = [0.1, 0.2, 0.35, 0.5, 0.75, 1.0, 1.25] #########
+        supported_scale = [0.1, 0.15, 0.2, 0.35, 0.5, 0.75, 1.0, 1.25] #########
         assert scale in supported_scale, \
             "supported scales are {} but input scale is {}".format(supported_scale, scale)
 

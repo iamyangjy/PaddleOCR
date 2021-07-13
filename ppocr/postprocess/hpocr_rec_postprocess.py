@@ -17,7 +17,7 @@ import paddle
 from paddle.nn import functional as F
 
 
-class BaseRecLabelDecode(object):
+class HpocrBaseRecLabelDecode(object):
     """ Convert between text-label and text-index """
 
     def __init__(self,
@@ -98,7 +98,7 @@ class BaseRecLabelDecode(object):
         return [0]  # for ctc blank
 
 
-class CTCLabelDecode(BaseRecLabelDecode):
+class HpocrCTCLabelDecode(HpocrBaseRecLabelDecode):
     """ Convert between text-label and text-index """
 
     def __init__(self,
@@ -106,7 +106,7 @@ class CTCLabelDecode(BaseRecLabelDecode):
                  character_type='ch',
                  use_space_char=False,
                  **kwargs):
-        super(CTCLabelDecode, self).__init__(character_dict_path,
+        super(HpocrCTCLabelDecode, self).__init__(character_dict_path,
                                              character_type, use_space_char)
 
     def __call__(self, preds, label=None, *args, **kwargs):
@@ -125,7 +125,7 @@ class CTCLabelDecode(BaseRecLabelDecode):
         return dict_character
 
 
-class AttnLabelDecode(BaseRecLabelDecode):
+class HpocrAttnLabelDecode(HpocrBaseRecLabelDecode):
     """ Convert between text-label and text-index """
 
     def __init__(self,
@@ -133,7 +133,7 @@ class AttnLabelDecode(BaseRecLabelDecode):
                  character_type='ch',
                  use_space_char=False,
                  **kwargs):
-        super(AttnLabelDecode, self).__init__(character_dict_path,
+        super(HpocrAttnLabelDecode, self).__init__(character_dict_path,
                                               character_type, use_space_char)
 
     def add_special_char(self, dict_character):
@@ -208,7 +208,7 @@ class AttnLabelDecode(BaseRecLabelDecode):
         return idx
 
 
-class SRNLabelDecode(BaseRecLabelDecode):
+class HpocrSRNLabelDecode(HpocrBaseRecLabelDecode):
     """ Convert between text-label and text-index """
 
     def __init__(self,
@@ -216,7 +216,7 @@ class SRNLabelDecode(BaseRecLabelDecode):
                  character_type='en',
                  use_space_char=False,
                  **kwargs):
-        super(SRNLabelDecode, self).__init__(character_dict_path,
+        super(HpocrSRNLabelDecode, self).__init__(character_dict_path,
                                              character_type, use_space_char)
         self.max_text_length = kwargs.get('max_text_length', 25)
 

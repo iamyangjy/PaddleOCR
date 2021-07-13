@@ -82,16 +82,44 @@ class HpocrBaseRecLabelDecode(object):
                 if is_remove_duplicate:
                     # only for predict
                     if idx > 0 and text_index[batch_idx][idx - 1] == text_index[
-                            batch_idx][idx]:
+                        batch_idx][idx]:
                         continue
                 char_list.append(self.character[int(text_index[batch_idx][
-                    idx])])
+                                                        idx])])
                 if text_prob is not None:
                     conf_list.append(text_prob[batch_idx][idx])
                 else:
                     conf_list.append(1)
             text = ''.join(char_list)
             result_list.append((text, np.mean(conf_list)))
+        return result_list
+
+    def ctcdecode(self, text_index, text_prob=None, is_remove_duplicate=False):
+        """ convert text-index into text-label. """
+        result_list = []
+        ignored_tokens = self.get_ignored_tokens()
+        batch_size = len(text_index)
+        for batch_idx in range(batch_size):
+            pos_tmp_list = []
+            char_list = []
+            conf_list = []
+            for idx in range(len(text_index[batch_idx])):
+                if text_index[batch_idx][idx] in ignored_tokens:
+                    continue
+                if is_remove_duplicate:
+                    # only for predict
+                    if idx > 0 and text_index[batch_idx][idx - 1] == text_index[
+                        batch_idx][idx]:
+                        continue
+                char_list.append(self.character[int(text_index[batch_idx][
+                                                        idx])])
+                pos_tmp_list.append(idx)
+                if text_prob is not None:
+                    conf_list.append(text_prob[batch_idx][idx])
+                else:
+                    conf_list.append(1)
+            text = ''.join(char_list)
+            result_list.append((text, np.mean(conf_list), pos_tmp_list))
         return result_list
 
     def get_ignored_tokens(self):
@@ -107,14 +135,14 @@ class HpocrCTCLabelDecode(HpocrBaseRecLabelDecode):
                  use_space_char=False,
                  **kwargs):
         super(HpocrCTCLabelDecode, self).__init__(character_dict_path,
-                                             character_type, use_space_char)
+                                                  character_type, use_space_char)
 
     def __call__(self, preds, label=None, *args, **kwargs):
         if isinstance(preds, paddle.Tensor):
             preds = preds.numpy()
         preds_idx = preds.argmax(axis=2)
         preds_prob = preds.max(axis=2)
-        text = self.decode(preds_idx, preds_prob, is_remove_duplicate=True)
+        text = self.ctcdecode(preds_idx, preds_prob, is_remove_duplicate=True)
         if label is None:
             return text
         label = self.decode(label)
@@ -134,7 +162,7 @@ class HpocrAttnLabelDecode(HpocrBaseRecLabelDecode):
                  use_space_char=False,
                  **kwargs):
         super(HpocrAttnLabelDecode, self).__init__(character_dict_path,
-                                              character_type, use_space_char)
+                                                   character_type, use_space_char)
 
     def add_special_char(self, dict_character):
         self.beg_str = "sos"
@@ -160,10 +188,10 @@ class HpocrAttnLabelDecode(HpocrBaseRecLabelDecode):
                 if is_remove_duplicate:
                     # only for predict
                     if idx > 0 and text_index[batch_idx][idx - 1] == text_index[
-                            batch_idx][idx]:
+                        batch_idx][idx]:
                         continue
                 char_list.append(self.character[int(text_index[batch_idx][
-                    idx])])
+                                                        idx])])
                 if text_prob is not None:
                     conf_list.append(text_prob[batch_idx][idx])
                 else:
@@ -217,7 +245,7 @@ class HpocrSRNLabelDecode(HpocrBaseRecLabelDecode):
                  use_space_char=False,
                  **kwargs):
         super(HpocrSRNLabelDecode, self).__init__(character_dict_path,
-                                             character_type, use_space_char)
+                                                  character_type, use_space_char)
         self.max_text_length = kwargs.get('max_text_length', 25)
 
     def __call__(self, preds, label=None, *args, **kwargs):
@@ -257,10 +285,10 @@ class HpocrSRNLabelDecode(HpocrBaseRecLabelDecode):
                 if is_remove_duplicate:
                     # only for predict
                     if idx > 0 and text_index[batch_idx][idx - 1] == text_index[
-                            batch_idx][idx]:
+                        batch_idx][idx]:
                         continue
                 char_list.append(self.character[int(text_index[batch_idx][
-                    idx])])
+                                                        idx])])
                 if text_prob is not None:
                     conf_list.append(text_prob[batch_idx][idx])
                 else:

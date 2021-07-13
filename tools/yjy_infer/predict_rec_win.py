@@ -311,18 +311,29 @@ def save_pre_img(args, path, pre_text):
     pre_img = np.array(img_pil)
     # res = cv2.vconcat([img, pretext])
 
-    org_dir, name = path.rsplit(os.sep, 1)
+    print(path)
+    org_dir, name = path.rsplit('/', 1)
 
     pre_dir = args.rec_pre_save_dir
     pre_name_path = os.path.join(pre_dir, name.replace(".jpg", "_pre.jpg"))
     org_name_path = os.path.join(pre_dir, name)
 
+    cv2.imwrite(pre_name_path, pre_img)
     for ii in pre_text[2]:
         cv2.line(img, (ii * 4, 0), (ii * 4, 32), (0, 0, 255), 1, 4)
     cv2.imwrite(org_name_path, img)
-    cv2.imwrite(pre_name_path, pre_img)
 
 
 if __name__ == "__main__":
-    print(utility.parse_args())
-    main(utility.parse_args())
+    args = utility.parse_args()
+    args.__dict__["image_dir"] = "../../img_test/"
+    args.__dict__["rec_model_dir"] = "../../inference/rec/mv3_none_none_ctc/"
+    args.__dict__["rec_image_shape"] = '3,32,280'
+    args.__dict__["rec_char_type"] = 'ch'
+    args.__dict__["rec_char_dict_path"] = "../../ppocr/utils/dict/char_std_v1.txt"
+    args.__dict__["rec_batch_num"] = 1
+    args.__dict__["use_gpu"] = False
+    args.__dict__["rec_pre_save_dir"] = "../../img_test/pre"
+    print(args)
+
+    main(args)

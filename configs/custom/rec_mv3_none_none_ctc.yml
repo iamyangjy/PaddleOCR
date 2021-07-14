@@ -38,7 +38,7 @@ Architecture:
   Transform:
   Backbone:
     name: MobileNetV3
-    scale: 0.2
+    scale: 0.35
     model_name: small
     small_stride: [ 1, 2, 2, 2 ]
   #    model_name: large
@@ -99,7 +99,7 @@ Train:
           keep_keys: [ 'image', 'label', 'length' ] # dataloader will return list in this order
   loader:
     shuffle: True
-    batch_size_per_card: 256
+    batch_size_per_card: 128
     drop_last: True
     num_workers: 16
 
@@ -126,5 +126,5 @@ Eval:
   loader:
     shuffle: False
     drop_last: False
-    batch_size_per_card: 256
+    batch_size_per_card: 128
     num_workers: 16

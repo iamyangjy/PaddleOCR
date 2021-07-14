@@ -79,40 +79,49 @@ def main():
         os.makedirs(os.path.dirname(save_res_path))
 
     model.eval()
+    input_spec = paddle.static.InputSpec(shape=[None, 3, 32, 280], dtype='float32', name='image')
+    file_path = "/tmp/rec_mv3_none_none_ctc_20210714"
+    paddle.onnx.export(model, file_path, input_spec=[input_spec], opset_version=12)
+    import onnx
+    model2 = onnx.load(file_path + ".onnx")
+    model2.graph.input[0].type.tensor_type.shape.dim[0].dim_param = '?'
+    model2.graph.input[0].type.tensor_type.shape.dim[3].dim_param = '?'
+    onnx.save(model2, file_path + "_dynamic.onnx")
 
-    with open(save_res_path, "w") as fout:
-        for file in get_image_file_list(config['Global']['infer_img']):
-            logger.info("infer_img: {}".format(file))
-            with open(file, 'rb') as f:
-                img = f.read()
-                data = {'image': img}
-            batch = transform(data, ops)
-            if config['Architecture']['algorithm'] == "SRN":
-                encoder_word_pos_list = np.expand_dims(batch[1], axis=0)
-                gsrm_word_pos_list = np.expand_dims(batch[2], axis=0)
-                gsrm_slf_attn_bias1_list = np.expand_dims(batch[3], axis=0)
-                gsrm_slf_attn_bias2_list = np.expand_dims(batch[4], axis=0)
 
-                others = [
-                    paddle.to_tensor(encoder_word_pos_list),
-                    paddle.to_tensor(gsrm_word_pos_list),
-                    paddle.to_tensor(gsrm_slf_attn_bias1_list),
-                    paddle.to_tensor(gsrm_slf_attn_bias2_list)
-                ]
-
-            images = np.expand_dims(batch[0], axis=0)
-            images = paddle.to_tensor(images)
-            if config['Architecture']['algorithm'] == "SRN":
-                preds = model(images, others)
-            else:
-                preds = model(images)
-            post_result = post_process_class(preds)
-            for rec_result in post_result:
-                logger.info('\t result: {}'.format(rec_result))
-                if len(rec_result) >= 2:
-                    fout.write(file + "\t" + rec_result[0] + "\t" + str(
-                        rec_result[1]) + "\n")
-    logger.info("success!")
+    # with open(save_res_path, "w") as fout:
+    #     for file in get_image_file_list(config['Global']['infer_img']):
+    #         logger.info("infer_img: {}".format(file))
+    #         with open(file, 'rb') as f:
+    #             img = f.read()
+    #             data = {'image': img}
+    #         batch = transform(data, ops)
+    #         if config['Architecture']['algorithm'] == "SRN":
+    #             encoder_word_pos_list = np.expand_dims(batch[1], axis=0)
+    #             gsrm_word_pos_list = np.expand_dims(batch[2], axis=0)
+    #             gsrm_slf_attn_bias1_list = np.expand_dims(batch[3], axis=0)
+    #             gsrm_slf_attn_bias2_list = np.expand_dims(batch[4], axis=0)
+    #
+    #             others = [
+    #                 paddle.to_tensor(encoder_word_pos_list),
+    #                 paddle.to_tensor(gsrm_word_pos_list),
+    #                 paddle.to_tensor(gsrm_slf_attn_bias1_list),
+    #                 paddle.to_tensor(gsrm_slf_attn_bias2_list)
+    #             ]
+    #
+    #         images = np.expand_dims(batch[0], axis=0)
+    #         images = paddle.to_tensor(images)
+    #         if config['Architecture']['algorithm'] == "SRN":
+    #             preds = model(images, others)
+    #         else:
+    #             preds = model(images)
+    #         post_result = post_process_class(preds)
+    #         for rec_result in post_result:
+    #             logger.info('\t result: {}'.format(rec_result))
+    #             if len(rec_result) >= 2:
+    #                 fout.write(file + "\t" + rec_result[0] + "\t" + str(
+    #                     rec_result[1]) + "\n")
+    # logger.info("success!")
 
 
 if __name__ == '__main__':

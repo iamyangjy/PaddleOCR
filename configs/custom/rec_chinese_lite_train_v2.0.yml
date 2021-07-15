@@ -40,7 +40,7 @@ Architecture:
   Transform:
   Backbone:
     name: MobileNetV3
-    scale: 0.35
+    scale: 0.5
     model_name: small
     small_stride: [ 1, 2, 2, 2 ]
   Neck:

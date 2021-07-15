@@ -38,9 +38,9 @@ Architecture:
   Transform:
   Backbone:
     name: MobileNetV3
-    scale: 0.35
+    scale: 0.15
     model_name: small
-    small_stride: [ 1, 2, 2, 2 ]
+#    small_stride: [ 1, 2, 2, 2 ]
   #    model_name: large
   Neck:
     name: SequenceEncoder
